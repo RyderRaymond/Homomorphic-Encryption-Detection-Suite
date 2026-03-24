@@ -15,10 +15,14 @@ Modules:
 import pyshark
 import pandas as pd
 import numpy as np
+import asyncio
 
 def capture_network_traffic(interface='eth0', packet_count=500):
+    eventloop = asyncio.new_event_loop()
+    asyncio.set_event_loop(eventloop)
+
     print("[*] Starting network capture...")
-    capture = pyshark.LiveCapture(interface=interface)
+    capture = pyshark.LiveCapture(interface=interface, eventloop=eventloop)
     packet_data = []
 
     for pkt in capture.sniff_continuously(packet_count=packet_count):
@@ -150,10 +154,10 @@ def correlate_and_flag_threats():
 # Section 6: Main Execution
 # =========================
 if __name__ == "__main__":
-    stats = capture_network_traffic()
-    nmap_df = detect_active_recon()
-    burp_df = burp_application_scan()
-    sample_features = [stats['mean'].mean(), nmap_df['open_ports'].mean(), burp_df['high_severity_issues'].mean()]
-    ciphertext, HE = encrypt_features(sample_features)
-    correlate_and_flag_threats()
+    stats = capture_network_traffic('wlo1')
+    # nmap_df = detect_active_recon()
+    # burp_df = burp_application_scan()
+    # sample_features = [stats['mean'].mean(), nmap_df['open_ports'].mean(), burp_df['high_severity_issues'].mean()]
+    # ciphertext, HE = encrypt_features(sample_features)
+    # correlate_and_flag_threats()
 
