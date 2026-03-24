@@ -66,7 +66,7 @@ def get_nmap_targets():
         print("Current targets: " + ", ".join(targets))
 
         while True:
-            add_more = input("Add more targets? Y/N")
+            add_more = input("Add more targets? (Y/N) ? ")
 
             if add_more.lower() == "y" or add_more.lower() == "yes":
                 add_more_targets = True
@@ -80,9 +80,10 @@ def get_nmap_targets():
     return targets
 
 
-def detect_active_recon(targets=['192.168.1.0/24'], sudo=False):
+def detect_active_recon(targets=['192.168.1.0/24'], sudo=True):
     if targets == None:
         targets = get_nmap_targets()
+
     print("[*] Running Nmap scans...")
     nm = nmap.PortScanner()
     all_results = []
@@ -187,7 +188,7 @@ def correlate_and_flag_threats():
 # =========================
 if __name__ == "__main__":
     # stats = capture_network_traffic('wlo1')
-    nmap_df = detect_active_recon()
+    nmap_df = detect_active_recon(None)
     # burp_df = burp_application_scan()
     # sample_features = [stats['mean'].mean(), nmap_df['open_ports'].mean(), burp_df['high_severity_issues'].mean()]
     # ciphertext, HE = encrypt_features(sample_features)
