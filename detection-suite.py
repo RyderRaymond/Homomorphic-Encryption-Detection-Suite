@@ -50,13 +50,45 @@ def capture_network_traffic(interface='eth0', packet_count=500):
 # =========================
 import nmap
 
-def detect_active_recon(targets=['192.168.1.0/24']):
+# Function to get a list of nmap targets from the user so we don't have to hardcode
+# IP ranges in, which could be a security issue
+def get_nmap_targets():
+    targets = []
+    add_more_targets = True
+
+    while add_more_targets:
+        target = input("Input a new target. Enter IP Address or IP Addr/Subnet mask (e.g. 192.168.1.0/24)\n? ")
+        target = target.strip()
+
+        if not (target == None or target == ""):
+            targets.append(target)
+
+        print("Current targets: " + ", ".join(targets))
+
+        while True:
+            add_more = input("Add more targets? Y/N")
+
+            if add_more.lower() == "y" or add_more.lower() == "yes":
+                add_more_targets = True
+                break
+            elif add_more.lower() == "n" or add_more.lower() == "no":
+                add_more_targets = False
+                break
+            else:
+                continue
+
+    return targets
+
+
+def detect_active_recon(targets=['192.168.1.0/24'], sudo=False):
+    if targets == None:
+        targets = get_nmap_targets()
     print("[*] Running Nmap scans...")
     nm = nmap.PortScanner()
     all_results = []
 
     for target in targets:
-        nm.scan(hosts=target, arguments='-sS -p 1-1024', sudo=True)
+        nm.scan(hosts=target, arguments='-sS -p 1-1024', sudo=sudo)
         for host in nm.all_hosts():
             host_data = {
                 'host': host,
@@ -154,8 +186,8 @@ def correlate_and_flag_threats():
 # Section 6: Main Execution
 # =========================
 if __name__ == "__main__":
-    stats = capture_network_traffic('wlo1')
-    # nmap_df = detect_active_recon()
+    # stats = capture_network_traffic('wlo1')
+    nmap_df = detect_active_recon()
     # burp_df = burp_application_scan()
     # sample_features = [stats['mean'].mean(), nmap_df['open_ports'].mean(), burp_df['high_severity_issues'].mean()]
     # ciphertext, HE = encrypt_features(sample_features)
