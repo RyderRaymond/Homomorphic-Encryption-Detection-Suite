@@ -28,10 +28,14 @@ def capture_network_traffic(interface='eth0', packet_count=500):
     for pkt in capture.sniff_continuously(packet_count=packet_count):
         try:
             packet_data.append({
-                'length': int(pkt.length),
-                'protocol': pkt.highest_layer,
                 'src': pkt.ip.src if hasattr(pkt, 'ip') else None,
                 'dst': pkt.ip.dst if hasattr(pkt, 'ip') else None,
+                'src_port': pkt[pkt.transport_layer].srcport if hasattr(pkt, 'transport_layer') else None,
+                'dst_port': pkt[pkt.transport_layer].dstport if hasattr(pkt, 'transport_layer') else None,
+                'protocol': pkt.highest_layer,
+                'length': int(pkt.length),
+                'timestamp': pkt.sniff_timestamp,
+                'flags': pkt.tcp.flags if hasattr(pkt, 'tcp') else None
             })
         except AttributeError:
             continue
